@@ -1,4 +1,4 @@
-const apiBase = "http://localhost:4000/api";
+const apiBase = "https://appointment-app-g434.onrender.com";
 
 export async function api(path, options = {}) {
   const response = await fetch(`${apiBase}${path}`, {

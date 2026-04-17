@@ -51,12 +51,12 @@ export function AppProvider({ children }) {
   }, [session]);
 
   useEffect(() => {
-    api("/services").then((items) => {
+    api("/api/services").then((items) => {
       setServices(items);
       setSelectedService((current) => current || items[0]?.id || "");
     });
 
-    api("/providers").then((items) => {
+    api("/api/providers").then((items) => {
       setProviders(items);
       setSelectedProvider((current) => current || items[0]?.id || "");
     });
@@ -84,7 +84,7 @@ export function AppProvider({ children }) {
       ...(selectedProvider ? { providerId: selectedProvider } : {})
     });
 
-    api(`/appointments/schedule?${params.toString()}`).then((data) => setSchedule(data.slots));
+    api(`/api/appointments/schedule?${params.toString()}`).then((data) => setSchedule(data.slots));
   }, [selectedDate, selectedService, selectedProvider]);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export function AppProvider({ children }) {
       return;
     }
 
-    api(`/appointments/recommendations?customerId=${session.user.id}&date=${selectedDate}&serviceId=${selectedService}`).then(setRecommendations);
+    api(`/api/appointments/recommendations?customerId=${session.user.id}&date=${selectedDate}&serviceId=${selectedService}`).then(setRecommendations);
   }, [session, selectedDate, selectedService]);
 
   async function loadDashboard(user = session?.user) {
@@ -101,7 +101,7 @@ export function AppProvider({ children }) {
       return;
     }
 
-    const data = await api(`/appointments/dashboard?role=${user.role}&userId=${user.id}`);
+    const data = await api(`/api/appointments/dashboard?role=${user.role}&userId=${user.id}`);
     setDashboard(data);
   }
 
@@ -111,7 +111,7 @@ export function AppProvider({ children }) {
       return [];
     }
 
-    const data = await api(`/chat?role=${user.role}&userId=${user.id}`);
+    const data = await api(`/api/chat?role=${user.role}&userId=${user.id}`);
     setConversations(data);
     return data;
   }
@@ -121,7 +121,7 @@ export function AppProvider({ children }) {
     setMessage("");
 
     try {
-      const data = await api("/auth/login", {
+      const data = await api("/api/auth/login", {
         method: "POST",
         body: JSON.stringify(loginForm)
       });
@@ -142,7 +142,7 @@ export function AppProvider({ children }) {
     setMessage("");
 
     try {
-      const endpoint = loginForm.role === "admin" ? "/auth/register/admin" : "/auth/register/customer";
+      const endpoint = loginForm.role === "admin" ? "/api/auth/register/admin" : "/api/auth/register/customer";
       const data = await api(endpoint, {
         method: "POST",
         body: JSON.stringify({
@@ -178,7 +178,7 @@ export function AppProvider({ children }) {
       ...(providerId ? { providerId } : {})
     });
 
-    const data = await api(`/appointments/schedule?${params.toString()}`);
+    const data = await api(`/api/appointments/schedule?${params.toString()}`);
     setSchedule(data.slots);
   }
 
@@ -189,7 +189,7 @@ export function AppProvider({ children }) {
 
     setLoading(true);
     try {
-      const data = await api("/appointments", {
+      const data = await api("/api/appointments", {
         method: "POST",
         body: JSON.stringify({
           customerId: session.user.id,
@@ -217,7 +217,7 @@ export function AppProvider({ children }) {
   }
 
   async function cancelBooking(appointmentId, cancellationReason) {
-    const data = await api(`/appointments/${appointmentId}/cancel`, {
+    const data = await api(`/api/appointments/${appointmentId}/cancel`, {
       method: "PATCH",
       body: JSON.stringify({ cancellationReason })
     });
@@ -229,7 +229,7 @@ export function AppProvider({ children }) {
   }
 
   async function rescheduleBooking(appointmentId, slot) {
-    const data = await api(`/appointments/${appointmentId}/reschedule`, {
+    const data = await api(`/api/appointments/${appointmentId}/reschedule`, {
       method: "PATCH",
       body: JSON.stringify({
         providerId: slot.providerId,
@@ -250,7 +250,7 @@ export function AppProvider({ children }) {
       throw new Error("Customer login is required to join the waitlist.");
     }
 
-    const data = await api("/appointments/waitlist", {
+    const data = await api("/api/appointments/waitlist", {
       method: "POST",
       body: JSON.stringify({
         customerId: session.user.id,
@@ -272,7 +272,7 @@ export function AppProvider({ children }) {
       throw new Error("Admin login is required.");
     }
 
-    const data = await api(`/appointments/${appointmentId}/approve`, {
+    const data = await api(`/api/appointments/${appointmentId}/approve`, {
       method: "PATCH",
       body: JSON.stringify({ adminId: session.user.id })
     });
@@ -287,7 +287,7 @@ export function AppProvider({ children }) {
       throw new Error("Sign in is required to delete an appointment.");
     }
 
-    const data = await api(`/appointments/${appointmentId}`, {
+    const data = await api(`/api/appointments/${appointmentId}`, {
       method: "DELETE",
       body: JSON.stringify({
         userId: session.user.id,
@@ -309,7 +309,7 @@ export function AppProvider({ children }) {
     setLoading(true);
 
     try {
-      const data = await api("/chat/messages", {
+      const data = await api("/api/chat/messages", {
         method: "POST",
         body: JSON.stringify({
           role: session.user.role,
